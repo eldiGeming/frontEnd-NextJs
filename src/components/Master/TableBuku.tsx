@@ -64,7 +64,7 @@ const TableBuku = () => {
       }
 
       // Menghapus data buku dari state setelah berhasil dihapus
-      setBukuData(bukuData.filter((buku: any) => buku.id !== id_buku));
+      setBukuData(bukuData.filter((buku: any) => buku.id_buku !== id_buku));
     } catch (error: any) {
       console.error("Error deleting data:", error.message); // Tangani error
     }
@@ -177,7 +177,7 @@ const TableBuku = () => {
 
               <button
                 className="hover:text-primary"
-                onClick={() => handleDelete(buku.id)}
+                onClick={() => handleDelete(buku.id_buku)}
               >
                 <svg
                   className="fill-current"
