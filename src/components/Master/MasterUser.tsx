@@ -21,7 +21,7 @@ const MasterUser = () => {
     };
 
     try {
-      const response = await fetch(`${api}user/register`, {
+      const response = await fetch(`${api}users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,12 +35,12 @@ const MasterUser = () => {
 
       const result = await response.json();
       alert("User berhasil ditambahkan!");
-        window.location.href = "/auth/signin";
+      window.location.href = "/auth/signin";
       // Reset form
       setNama("");
       setUsername("");
       setPassword("");
-    } catch (error:any) {
+    } catch (error: any) {
       alert("Error: " + error.message);
     }
   };

@@ -5,29 +5,24 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TableBuku from "@/components/Master/TableBuku";
 
 const MasterBuku = () => {
-  const [judul, setJudul] = useState("");
-  const [pengarang, setPengarang] = useState("");
-  const [tahunTerbit, setTahunTerbit] = useState("");
-  const [stok, setStok] = useState("");
+  const [judul, setJudul] = useState<string>("");
+  const [pengarang, setPengarang] = useState<string>("");
+  const [tahunTerbit, setTahunTerbit] = useState<string>("");
+  const [stok, setStok] = useState<number>(0); // Initialized with a default value 0
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const id_buku = searchParams.get("id_buku");
   const token = localStorage.getItem("authToken");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_BUKU_URL}`;
 
   useEffect(() => {
-    if (id) {
+    if (id_buku) {
       const fetchData = async () => {
         try {
-          // Pastikan token ada sebelum melanjutkan request
-          if (!token) {
-            throw new Error("Token tidak ditemukan. Silakan login kembali.");
-          }
-
-          const response = await fetch(`${api}buku/${id}`, {
+          const response = await fetch(`${api}findOne/${id_buku}`, {
             headers: {
-              Authorization: `Bearer ${token}`, // Menambahkan token di header
+              Authorization: `Bearer ${token}`,
             },
           });
 
@@ -35,26 +30,30 @@ const MasterBuku = () => {
             throw new Error("Gagal mengambil data buku");
           }
 
-          const data = await response.json();
+          const responseBody = await response.json();
+          const data = responseBody.data;
+
           setJudul(data.judul);
           setPengarang(data.pengarang);
-          setTahunTerbit(data.tahun_terbit);
+
+          // Extract only the year from the date string (e.g., '2021-09-09T00:00:00.000Z' => '2021')
+          const parsedTahunTerbit = data.tahun_terbit
+            ? new Date(data.tahun_terbit).getFullYear().toString() // Extract just the year as string
+            : ""; // If no date, set to empty string
+
+          setTahunTerbit(parsedTahunTerbit); // Set the extracted year
+
           setStok(data.stok);
-        } catch (error:any) {
+        } catch (error: any) {
           alert("Error: " + error.message);
         }
       };
 
       fetchData();
     }
-  }, [id]);
+  }, [id_buku]);
 
   const handleTambah = async () => {
-    if (!judul || !pengarang || !tahunTerbit || !stok) {
-      alert("Semua field harus diisi!");
-      return;
-    }
-
     const data = {
       judul: judul,
       pengarang: pengarang,
@@ -63,12 +62,7 @@ const MasterBuku = () => {
     };
 
     try {
-      // Pastikan token ada sebelum melanjutkan request
-      if (!token) {
-        throw new Error("Token tidak ditemukan. Silakan login kembali.");
-      }
-
-      const response = await fetch(`${api}buku`, {
+      const response = await fetch(`${api}create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,10 +71,6 @@ const MasterBuku = () => {
         body: JSON.stringify(data), // Mengirimkan data dalam bentuk JSON
       });
 
-      if (!response.ok) {
-        throw new Error("Gagal menambahkan buku");
-      }
-
       const result = await response.json();
       alert("Buku berhasil ditambahkan!");
       window.location.reload();
@@ -88,20 +78,16 @@ const MasterBuku = () => {
       setJudul("");
       setPengarang("");
       setTahunTerbit("");
-      setStok("");
+      setStok(0);
     } catch (error: any) {
       alert("Error: " + error.message);
     }
   };
 
+  //handleUpdate
   const handleUpdate = async () => {
-    if (!judul || !pengarang || !tahunTerbit || !stok) {
-      alert("Semua field harus diisi!");
-      return;
-    }
-
     const data = {
-      id: id,
+      id_buku: id_buku,
       judul: judul,
       pengarang: pengarang,
       tahun_terbit: tahunTerbit,
@@ -109,24 +95,14 @@ const MasterBuku = () => {
     };
 
     try {
-      // Pastikan token ada sebelum melanjutkan request
-      if (!token) {
-        throw new Error("Token tidak ditemukan. Silakan login kembali.");
-      }
-
-      const response = await fetch(`${api}buku/${id}`, {
-        method: "PUT", // Menggunakan PUT untuk update data
+      const response = await fetch(`${api}update/${id_buku}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Menambahkan token di header
         },
         body: JSON.stringify(data), // Data yang akan di-update
       });
-
-      if (!response.ok) {
-        throw new Error("Gagal memperbarui buku");
-      }
-
       const result = await response.json();
       alert("Buku berhasil diubah!");
       window.location.assign("/master/master-buku");
@@ -134,7 +110,7 @@ const MasterBuku = () => {
       setJudul("");
       setPengarang("");
       setTahunTerbit("");
-      setStok("");
+      setStok(0);
     } catch (error: any) {
       alert("Error: " + error.message);
     }
@@ -183,32 +159,42 @@ const MasterBuku = () => {
                 <label className="mb-3 block text-body-sm font-medium text-dark dark:text-white">
                   Tahun Terbit
                 </label>
-                <input
-                  type="text"
-                  placeholder="Quantity"
+                <select
                   value={tahunTerbit}
                   onChange={(e) => setTahunTerbit(e.target.value)}
                   className="w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
-                />
+                >
+                  <option value="">Pilih Tahun</option>
+                  {Array.from({ length: 100 }, (_, index) => {
+                    const year = new Date().getFullYear() - index; // Generate years starting from the current year
+                    return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
               <div>
                 <label className="mb-3 block text-body-sm font-medium text-dark dark:text-white">
-                  Alamat
+                  Stok
                 </label>
                 <input
-                  type="text"
-                  placeholder="Alamat Mahasiswa"
+                  type="number"
+                  placeholder="Stok Buku"
                   value={stok}
-                  onChange={(e) => setStok(e.target.value)}
+                  onChange={(e) =>
+                    setStok(e.target.value ? parseInt(e.target.value) : 0)
+                  } // Convert to number
                   className="w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
                 />
               </div>
 
               <button
-                onClick={id ? handleUpdate : handleTambah} // Kondisi untuk memilih fungsi yang akan dijalankan
+                onClick={id_buku ? handleUpdate : handleTambah} // Kondisi untuk memilih fungsi yang akan dijalankan
                 className="flex w-50 justify-center rounded-[7px] bg-primary p-[13px] font-medium text-white hover:bg-opacity-90"
               >
-                {id ? "Update" : "Tambah"}{" "}
+                {id_buku ? "Update" : "Tambah"}
                 {/* Label tombol berdasarkan ada tidaknya id */}
               </button>
             </div>

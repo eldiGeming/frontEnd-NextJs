@@ -4,33 +4,28 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const TableBuku = () => {
-  const [bukuData, setBukuData] = useState([]);
+  const [bukuData, setBukuData] = useState<any[]>([]);
   const token = localStorage.getItem("authToken");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_BUKU_URL}`;
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Fetch data dari API
   useEffect(() => {
     const fetchBukuData = async () => {
       try {
-        const response = await fetch(`${api}buku`, {
+        const response = await fetch(`${api}getAll`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.status === 401) {
-          console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "/auth/signin";
-          return; // Stop further execution
-        }
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data buku");
-        }
         const data = await response.json();
-        setBukuData(data);
+        setBukuData(data.data);
       } catch (error: any) {
-        console.error("Error fetching data:", error.message);
+        console.error("Error fetching data:", error.message || error);
+        setErrorMessage(error.message); // Set error message
+        setBukuData([]); // Set array kosong jika ada error
       }
     };
 
@@ -39,31 +34,13 @@ const TableBuku = () => {
 
   // Fungsi untuk delete barang
   const handleDelete = async (id_buku: string) => {
-    const token = localStorage.getItem("authToken"); // Mengambil token dari localStorage
-    if (!token) {
-      console.error("No token found. Redirecting to login page.");
-      window.location.href = "http://localhost:3000/"; // Redirect jika token tidak ada
-      return; // Stop further execution
-    }
-
     try {
-      const response = await fetch(`${api}buku/${id_buku}`, {
+      const response = await fetch(`${api}delete/${id_buku}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`, // Menambahkan token ke header
         },
       });
-
-      if (response.status === 401) {
-        console.error("Unauthorized: Redirecting to homepage.");
-        window.location.href = "http://localhost:3000/"; // Redirect jika unauthorized
-        return; // Stop further execution
-      }
-
-      if (!response.ok) {
-        throw new Error("Gagal menghapus data buku");
-      }
-
       // Menghapus data buku dari state setelah berhasil dihapus
       setBukuData(bukuData.filter((buku: any) => buku.id_buku !== id_buku));
     } catch (error: any) {
@@ -152,7 +129,7 @@ const TableBuku = () => {
             </div>
 
             <div className="flex items-center justify-center gap-2 px-2 py-4">
-              <Link href={"/master/master-buku/?id=" + buku.id_buku}>
+              <Link href={"/master/master-buku/?id_buku=" + buku.id_buku}>
                 <button className="hover:text-primary">
                   <svg
                     className="fill-current"

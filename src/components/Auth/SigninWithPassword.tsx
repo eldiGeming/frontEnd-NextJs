@@ -4,13 +4,14 @@ import Link from "next/link";
 
 const LoginForm = () => {
   const [errorMessage, setErrorMessage] = useState("");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, password } = e.target.elements;
 
     try {
-      const response = await fetch("http://localhost:4000/user/login", {
+      const response = await fetch(`${api}users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +32,7 @@ const LoginForm = () => {
       }
 
       // Redirect to /master/master-buku
-      window.location.href = "/master/master-mahasiswa";
+      window.location.href = "/master/master-buku";
     } catch (error) {
       alert("Username/Password salah");
     }
