@@ -6,6 +6,7 @@ const MasterUser = () => {
   const [namaUser, setNama] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   const handleTambah = async () => {
     if (!namaUser || !username || !password) {
@@ -20,7 +21,7 @@ const MasterUser = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:4000/user/register", {
+      const response = await fetch(`${api}user/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

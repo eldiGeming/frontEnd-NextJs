@@ -16,12 +16,13 @@ const TransaksiPeminjaman = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const token = localStorage.getItem("authToken");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   // Fetch data mahasiswa
   useEffect(() => {
     const fetchMahasiswaData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/mahasiswa", {
+        const response = await fetch(`${api}mahasiswa`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -53,7 +54,7 @@ const TransaksiPeminjaman = () => {
   useEffect(() => {
     const fetchBukuData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/buku", {
+        const response = await fetch(`${api}buku`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -115,7 +116,7 @@ const TransaksiPeminjaman = () => {
     try {
       // Menghindari masalah referensi dengan structuredClone
       const safeData = structuredClone(data);
-      const response = await fetch("http://localhost:4000/peminjaman", {
+      const response = await fetch(`${api}peminjaman`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

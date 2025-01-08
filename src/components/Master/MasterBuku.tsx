@@ -14,6 +14,7 @@ const MasterBuku = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const token = localStorage.getItem("authToken");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   useEffect(() => {
     if (id) {
@@ -24,7 +25,7 @@ const MasterBuku = () => {
             throw new Error("Token tidak ditemukan. Silakan login kembali.");
           }
 
-          const response = await fetch(`http://localhost:4000/buku/${id}`, {
+          const response = await fetch(`${api}buku/${id}`, {
             headers: {
               Authorization: `Bearer ${token}`, // Menambahkan token di header
             },
@@ -39,7 +40,7 @@ const MasterBuku = () => {
           setPengarang(data.pengarang);
           setTahunTerbit(data.tahun_terbit);
           setStok(data.stok);
-        } catch (error) {
+        } catch (error:any) {
           alert("Error: " + error.message);
         }
       };
@@ -67,13 +68,13 @@ const MasterBuku = () => {
         throw new Error("Token tidak ditemukan. Silakan login kembali.");
       }
 
-      const response = await fetch("http://localhost:4000/buku", {
+      const response = await fetch(`${api}buku`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Menambahkan token di header
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data), // Mengirimkan data dalam bentuk JSON
       });
 
       if (!response.ok) {
@@ -113,13 +114,13 @@ const MasterBuku = () => {
         throw new Error("Token tidak ditemukan. Silakan login kembali.");
       }
 
-      const response = await fetch("http://localhost:4000/buku/" + id, {
+      const response = await fetch(`${api}buku/${id}`, {
         method: "PUT", // Menggunakan PUT untuk update data
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Menambahkan token di header
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data), // Data yang akan di-update
       });
 
       if (!response.ok) {

@@ -14,6 +14,7 @@ const MasterMahasiswa = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("nim");
   const token = localStorage.getItem("authToken");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   useEffect(() => {
     if (id) {
@@ -25,15 +26,12 @@ const MasterMahasiswa = () => {
           }
 
           // Lakukan pemanggilan API dengan header Authorization
-          const response = await fetch(
-            `http://localhost:4000/mahasiswa/${id}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+          const response = await fetch(`${api}mahasiswa/${id}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
             },
-          );
+          });
 
           if (!response.ok) {
             throw new Error("Gagal mengambil data mahasiswa");
@@ -45,7 +43,7 @@ const MasterMahasiswa = () => {
           setNamaMhs(data.nama);
           setKelasMhs(data.kelas);
           setAlamatMhs(data.alamat);
-        } catch (error) {
+        } catch (error: any) {
           alert("Error: " + error.message);
         }
       };
@@ -73,7 +71,7 @@ const MasterMahasiswa = () => {
         throw new Error("Token tidak ditemukan. Silakan login kembali.");
       }
 
-      const response = await fetch("http://localhost:4000/mahasiswa", {
+      const response = await fetch(`${api}mahasiswa`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +93,7 @@ const MasterMahasiswa = () => {
       setNamaMhs("");
       setKelasMhs("");
       setAlamatMhs("");
-    } catch (error) {
+    } catch (error: any) {
       alert("Error: " + error.message);
     }
   };
@@ -119,7 +117,7 @@ const MasterMahasiswa = () => {
         throw new Error("Token tidak ditemukan. Silakan login kembali.");
       }
 
-      const response = await fetch("http://localhost:4000/mahasiswa/" + id, {
+      const response = await fetch(`${api}mahasiswa/` + id, {
         method: "PUT", // Menggunakan PUT untuk update data
         headers: {
           "Content-Type": "application/json",

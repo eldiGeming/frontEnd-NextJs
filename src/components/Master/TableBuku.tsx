@@ -6,12 +6,13 @@ import Link from "next/link";
 const TableBuku = () => {
   const [bukuData, setBukuData] = useState([]);
   const token = localStorage.getItem("authToken");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   // Fetch data dari API
   useEffect(() => {
     const fetchBukuData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/buku", {
+        const response = await fetch(`${api}buku`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,7 +47,7 @@ const TableBuku = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/buku/${id_buku}`, {
+      const response = await fetch(`${api}buku/${id_buku}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`, // Menambahkan token ke header

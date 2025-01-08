@@ -6,12 +6,13 @@ import Link from "next/link";
 const TableMahasiswa = () => {
   const [mahasiswaData, setMahasiswaData] = useState([]);
   const token = localStorage.getItem("authToken");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   // Fetch data dari API
   useEffect(() => {
     const fetchMahasiswaData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/mahasiswa", {
+        const response = await fetch(`${api}mahasiswa`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,7 +48,7 @@ const TableMahasiswa = () => {
         throw new Error("Token tidak ditemukan. Silakan login kembali.");
       }
 
-      const response = await fetch(`http://localhost:4000/mahasiswa/${nim}`, {
+      const response = await fetch(`${api}mahasiswa/${nim}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`, // Menambahkan token di header

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 const TablePeminjaman = () => {
@@ -9,12 +8,13 @@ const TablePeminjaman = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const token = localStorage.getItem("authToken");
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
   // Fetch data dari API
   useEffect(() => {
     const fetchPeminjamanData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/peminjaman", {
+        const response = await fetch(`${api}peminjaman`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -37,13 +37,13 @@ const TablePeminjaman = () => {
     const token = localStorage.getItem("authToken"); // Mengambil token dari localStorage
     if (!token) {
       console.error("No token found. Redirecting to login page.");
-      window.location.href = "http://localhost:3000/"; // Redirect jika token tidak ada
+      window.location.href = "http://localhost:3000/";
       return; // Stop further execution
     }
 
     try {
       // Mengirim permintaan PUT untuk memperbarui status peminjaman
-      const response = await fetch(`http://localhost:4000/peminjaman/${id}`, {
+      const response = await fetch(`${api}peminjaman/${id}`, {
         method: "PUT", // Metode PUT untuk memperbarui status peminjaman
         headers: {
           "Content-Type": "application/json", // Menandakan bahwa body yang dikirimkan dalam format JSON
@@ -62,7 +62,7 @@ const TablePeminjaman = () => {
 
       // Optional: Menyegarkan halaman atau mengalihkan ke halaman lain
       window.location.reload();
-    } catch (error) {
+    } catch (error: any) {
       // Menangani error jika terjadi masalah dalam permintaan
       alert("Error: " + error.message);
     }
