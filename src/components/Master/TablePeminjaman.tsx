@@ -33,11 +33,11 @@ const TablePeminjaman = () => {
     fetchPeminjamanData();
   }, []);
 
-  const handleUpdate = async (id) => {
+  const handleUpdate = async (id: any) => {
     const token = localStorage.getItem("authToken"); // Mengambil token dari localStorage
     if (!token) {
       console.error("No token found. Redirecting to login page.");
-      window.location.href = "http://localhost:3000/";
+      window.location.href = "/auth/signin";
       return; // Stop further execution
     }
 
@@ -68,7 +68,7 @@ const TablePeminjaman = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateStrin: any) => {
     const date = new Date(dateString);
     if (isNaN(date)) return "-"; // Jika format tanggal tidak valid, kembalikan "-"
 

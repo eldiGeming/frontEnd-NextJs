@@ -139,7 +139,7 @@ const MasterMahasiswa = () => {
       setNamaMhs("");
       setKelasMhs("");
       setAlamatMhs("");
-    } catch (error) {
+    } catch (error:any) {
       alert("Error: " + error.message);
     }
   };

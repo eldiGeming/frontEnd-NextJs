@@ -35,12 +35,12 @@ const MasterUser = () => {
 
       const result = await response.json();
       alert("User berhasil ditambahkan!");
-      window.location.href = "http://localhost:3000/";
+        window.location.href = "/auth/signin";
       // Reset form
       setNama("");
       setUsername("");
       setPassword("");
-    } catch (error) {
+    } catch (error:any) {
       alert("Error: " + error.message);
     }
   };

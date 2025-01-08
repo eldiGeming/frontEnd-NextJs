@@ -21,7 +21,7 @@ const TableBuku = () => {
 
         if (response.status === 401) {
           console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "http://localhost:3000/";
+          window.location.href = "/auth/signin";
           return; // Stop further execution
         }
         if (!response.ok) {

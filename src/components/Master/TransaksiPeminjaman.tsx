@@ -31,7 +31,7 @@ const TransaksiPeminjaman = () => {
 
         if (response.status === 401) {
           console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "http://localhost:3000/";
+          window.location.href = "/auth/signin";
           return; // Stop further execution
         }
 
@@ -63,7 +63,7 @@ const TransaksiPeminjaman = () => {
 
         if (response.status === 401) {
           console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "http://localhost:3000/";
+          window.location.href = "/auth/signin";
           return; // Stop further execution
         }
         if (!response.ok) {
@@ -87,7 +87,7 @@ const TransaksiPeminjaman = () => {
   };
 
   // Handle pemilihan buku
-  const handleSelectBuku = (e) => {
+  const handleSelectBuku = (e: any) => {
     const selectedIdBuku = e.target.value; // Ini adalah mahasiswa.id
     console.log(selectedIdBuku); // Pastikan ini mencetak id yang benar
     setSelectedBuku(selectedIdBuku);
