@@ -1,0 +1,9 @@
+{
+  "/page": "app/page.js",
+  "/auth/signin/page": "app/auth/signin/page.js",
+  "/master/master-buku/page": "app/master/master-buku/page.js",
+  "/master/master-user/page": "app/master/master-user/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/master/master-mahasiswa/page": "app/master/master-mahasiswa/page.js",
+  "/master/transaksi-peminjaman/page": "app/master/transaksi-peminjaman/page.js"
+}
