@@ -6,14 +6,9 @@ const MasterUser = () => {
   const [namaUser, setNama] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_USERS_URL}`;
 
   const handleTambah = async () => {
-    if (!namaUser || !username || !password) {
-      alert("Semua field harus diisi!");
-      return;
-    }
-
     const data = {
       nama: namaUser,
       username: username,
@@ -21,21 +16,16 @@ const MasterUser = () => {
     };
 
     try {
-      const response = await fetch(`${api}users/register`, {
+      const response = await fetch(`${api}register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        throw new Error("Gagal menambahkan User");
-      }
-
       const result = await response.json();
       alert("User berhasil ditambahkan!");
-      window.location.href = "/auth/signin";
+      window.location.href = "/";
       // Reset form
       setNama("");
       setUsername("");
@@ -47,8 +37,6 @@ const MasterUser = () => {
 
   return (
     <>
-      <Breadcrumb pageName="Master User" />
-
       <div className="mx-auto mt-6 max-w-4xl px-4">
         {/* Card container */}
         <div className="rounded-lg bg-white p-6 shadow-lg">

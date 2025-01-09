@@ -6,31 +6,25 @@ import Link from "next/link";
 const TableMahasiswa = () => {
   const [mahasiswaData, setMahasiswaData] = useState([]);
   const token = localStorage.getItem("authToken");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_MAHASISWA_URL}`;
 
   // Fetch data dari API
   useEffect(() => {
     const fetchMahasiswaData = async () => {
       try {
-        const response = await fetch(`${api}mahasiswa`, {
+        const response = await fetch(`${api}getAll`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (response.status === 401) {
-          console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "/auth/signin";
-          return; // Stop further execution
+          // If the response is 401, redirect to the login page
+          window.location.href = "/";
+          return; // Exit the function early
         }
-
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data mahasiswa");
-        }
-
         const data = await response.json();
-        setMahasiswaData(data);
+        setMahasiswaData(data.data);
         console.log("Token:", token);
       } catch (error: any) {
         console.error("Error fetching data:", error.message);
@@ -43,20 +37,16 @@ const TableMahasiswa = () => {
   // Fungsi untuk delete barang
   const handleDelete = async (nim: string) => {
     try {
-      // Pastikan token ada sebelum melanjutkan request
-      if (!token) {
-        throw new Error("Token tidak ditemukan. Silakan login kembali.");
-      }
-
-      const response = await fetch(`${api}mahasiswa/${nim}`, {
+      const response = await fetch(`${api}delete/${nim}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`, // Menambahkan token di header
         },
       });
-
-      if (!response.ok) {
-        throw new Error("Gagal menghapus data mahasiswa");
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
       }
 
       setMahasiswaData(
@@ -65,12 +55,6 @@ const TableMahasiswa = () => {
     } catch (error: any) {
       console.error("Error deleting data:", error.message);
     }
-  };
-
-  // Fungsi untuk update barang (placeholder, belum diimplementasikan)
-  const handleUpdate = (nim: string) => {
-    console.log(`Update barang dengan NIM: ${nim}`);
-    // Tambahkan logic untuk membuka form update atau navigasi ke halaman update
   };
 
   return (

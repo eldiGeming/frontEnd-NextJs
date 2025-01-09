@@ -19,7 +19,11 @@ const TableBuku = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        if (response.status === 401) {
+          // If the response is 401, redirect to the login page
+          window.location.href = "/";
+          return; // Exit the function early
+        }
         const data = await response.json();
         setBukuData(data.data);
       } catch (error: any) {
@@ -41,6 +45,11 @@ const TableBuku = () => {
           Authorization: `Bearer ${token}`, // Menambahkan token ke header
         },
       });
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
+      }
       // Menghapus data buku dari state setelah berhasil dihapus
       setBukuData(bukuData.filter((buku: any) => buku.id_buku !== id_buku));
     } catch (error: any) {

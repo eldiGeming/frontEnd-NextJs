@@ -4,14 +4,14 @@ import Link from "next/link";
 
 const LoginForm = () => {
   const [errorMessage, setErrorMessage] = useState("");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_USERS_URL}`;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     const { username, password } = e.target.elements;
 
     try {
-      const response = await fetch(`${api}users/login`, {
+      const response = await fetch(`${api}login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -21,18 +21,15 @@ const LoginForm = () => {
           password: password.value,
         }),
       });
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
       const data = await response.json();
 
       // Save token to localStorage
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
+      if (data.data.token) {
+        localStorage.setItem("authToken", data.data.token);
       }
 
       // Redirect to /master/master-buku
-      window.location.href = "/master/master-buku";
+      window.location.href = "/dashboard";
     } catch (error) {
       alert("Username/Password salah");
     }

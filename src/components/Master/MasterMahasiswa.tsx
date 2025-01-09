@@ -5,39 +5,35 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TableMahasiswa from "@/components/Master/TableMahasiswa";
 
 const MasterMahasiswa = () => {
-  const [nimMhs, setNimMhs] = useState("");
-  const [namaMhs, setNamaMhs] = useState("");
-  const [kelasMhs, setKelasMhs] = useState("");
-  const [alamatMhs, setAlamatMhs] = useState("");
+  const [nimMhs, setNimMhs] = useState<string>("");
+  const [namaMhs, setNamaMhs] = useState<string>("");
+  const [kelasMhs, setKelasMhs] = useState<string>("");
+  const [alamatMhs, setAlamatMhs] = useState<string>("");
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const id = searchParams.get("nim");
   const token = localStorage.getItem("authToken");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_MAHASISWA_URL}`;
 
   useEffect(() => {
     if (id) {
       const fetchData = async () => {
         try {
-          // Pastikan token ada sebelum melanjutkan request
-          if (!token) {
-            throw new Error("Token not found. Please log in again.");
-          }
-
           // Lakukan pemanggilan API dengan header Authorization
-          const response = await fetch(`${api}mahasiswa/${id}`, {
+          const response = await fetch(`${api}findOne/${id}`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-
-          if (!response.ok) {
-            throw new Error("Gagal mengambil data mahasiswa");
+          if (response.status === 401) {
+            // If the response is 401, redirect to the login page
+            window.location.href = "/";
+            return; // Exit the function early
           }
-
-          const data = await response.json();
+          const responseBody = await response.json();
+          const data = responseBody.data;
           console.log(data);
           setNimMhs(data.nim);
           setNamaMhs(data.nama);
@@ -53,11 +49,6 @@ const MasterMahasiswa = () => {
   }, [id]);
 
   const handleTambah = async () => {
-    if (!nimMhs || !namaMhs || !kelasMhs || !alamatMhs) {
-      alert("Semua field harus diisi!");
-      return;
-    }
-
     const data = {
       nim: nimMhs,
       nama: namaMhs,
@@ -66,12 +57,7 @@ const MasterMahasiswa = () => {
     };
 
     try {
-      // Pastikan token ada sebelum melanjutkan request
-      if (!token) {
-        throw new Error("Token tidak ditemukan. Silakan login kembali.");
-      }
-
-      const response = await fetch(`${api}mahasiswa`, {
+      const response = await fetch(`${api}create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,11 +65,11 @@ const MasterMahasiswa = () => {
         },
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        throw new Error("Gagal menambahkan mahasiswa");
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
       }
-
       const result = await response.json();
       alert("Mahasiswa berhasil ditambahkan!");
       window.location.reload();
@@ -99,11 +85,6 @@ const MasterMahasiswa = () => {
   };
 
   const handleUpdate = async () => {
-    if (!nimMhs || !namaMhs || !kelasMhs || !alamatMhs) {
-      alert("Semua field harus diisi!");
-      return;
-    }
-
     const data = {
       nim: nimMhs,
       nama: namaMhs,
@@ -112,24 +93,19 @@ const MasterMahasiswa = () => {
     };
 
     try {
-      // Pastikan token ada sebelum melanjutkan request
-      if (!token) {
-        throw new Error("Token tidak ditemukan. Silakan login kembali.");
-      }
-
-      const response = await fetch(`${api}mahasiswa/` + id, {
-        method: "PUT", // Menggunakan PUT untuk update data
+      const response = await fetch(`${api}update/${id}`, {
+        method: "PATCH", // Menggunakan PUT untuk update data
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Menambahkan token di header
         },
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        throw new Error("Gagal memperbarui mahasiswa");
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
       }
-
       const result = await response.json();
       alert("Mahasiswa berhasil diubah!");
       window.location.assign("/master/master-mahasiswa");
@@ -139,7 +115,7 @@ const MasterMahasiswa = () => {
       setNamaMhs("");
       setKelasMhs("");
       setAlamatMhs("");
-    } catch (error:any) {
+    } catch (error: any) {
       alert("Error: " + error.message);
     }
   };

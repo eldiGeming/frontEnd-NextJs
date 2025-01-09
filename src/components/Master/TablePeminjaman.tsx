@@ -8,23 +8,25 @@ const TablePeminjaman = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const token = localStorage.getItem("authToken");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_PEMINJAMAN_URL}`;
 
   // Fetch data dari API
   useEffect(() => {
     const fetchPeminjamanData = async () => {
       try {
-        const response = await fetch(`${api}peminjaman`, {
+        const response = await fetch(`${api}getAll`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data peminjaman");
+        if (response.status === 401) {
+          // If the response is 401, redirect to the login page
+          window.location.href = "/";
+          return; // Exit the function early
         }
         const data = await response.json();
-        setPeminjamanData(data);
+        setPeminjamanData(data.data);
       } catch (error: any) {
         console.error("Error fetching data:", error.message);
       }
@@ -34,28 +36,20 @@ const TablePeminjaman = () => {
   }, []);
 
   const handleUpdate = async (id: any) => {
-    const token = localStorage.getItem("authToken"); // Mengambil token dari localStorage
-    if (!token) {
-      console.error("No token found. Redirecting to login page.");
-      window.location.href = "/auth/signin";
-      return; // Stop further execution
-    }
-
     try {
       // Mengirim permintaan PUT untuk memperbarui status peminjaman
-      const response = await fetch(`${api}peminjaman/${id}`, {
-        method: "PUT", // Metode PUT untuk memperbarui status peminjaman
+      const response = await fetch(`${api}update/${id}`, {
+        method: "PATCH", // Metode PUT untuk memperbarui status peminjaman
         headers: {
           "Content-Type": "application/json", // Menandakan bahwa body yang dikirimkan dalam format JSON
           Authorization: `Bearer ${token}`, // Menambahkan token di header
         },
       });
-
-      // Mengecek jika response gagal
-      if (!response.ok) {
-        throw new Error("Gagal memperbarui status peminjaman");
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
       }
-
       // Menangani response dari server
       const result = await response.json();
       alert(result.message); // Menampilkan pesan sukses dari backend
@@ -68,21 +62,23 @@ const TablePeminjaman = () => {
     }
   };
 
-  const formatDate = (dateStrin: any) => {
-    const date = new Date(dateString);
-    if (isNaN(date)) return "-"; // Jika format tanggal tidak valid, kembalikan "-"
+  const formatDate = (dateString: any) => {
+    if (!dateString) return "-"; // Tangani nilai null atau undefined
 
-    const options = {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "-"; // Tangani format tanggal tidak valid
+
+    const options: Intl.DateTimeFormatOptions = {
       day: "numeric",
       month: "short",
       year: "numeric",
     };
 
-    // Menggunakan toLocaleDateString dengan format bulan 3 huruf kapital
+    // Format tanggal menggunakan toLocaleDateString dengan locale "id-ID"
     const formattedDate = date.toLocaleDateString("id-ID", options);
 
-    // Mengubah bulan menjadi huruf kapital (JAN, FEB, MAR, ...)
-    return formattedDate.replace(/([A-Za-z]{3})/, (match) =>
+    // Ubah bulan menjadi huruf kapital (JAN, FEB, MAR, ...)
+    return formattedDate.replace(/\b([a-z]{3})\b/gi, (match) =>
       match.toUpperCase(),
     );
   };
@@ -140,12 +136,12 @@ const TablePeminjaman = () => {
 
             <div className="flex items-center justify-center px-2 py-4">
               <p className="font-medium text-dark dark:text-white">
-                {peminjaman.mahasiswa.nama}
+                {peminjaman.tbl_mahasiswa.nama}
               </p>
             </div>
             <div className="flex items-center justify-center px-2 py-4">
               <p className="font-medium text-dark dark:text-white">
-                {peminjaman.buku.judul}
+                {peminjaman.tbl_buku.judul}
               </p>
             </div>
 

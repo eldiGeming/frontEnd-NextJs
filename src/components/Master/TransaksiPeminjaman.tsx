@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TablePeminjaman from "@/components/Master/TablePeminjaman";
 
 const TransaksiPeminjaman = () => {
-  const [mahasiswaList, setMahasiswaList] = useState([]);
+  const [mahasiswaList, setMahasiswaList] = useState<[]>([]);
   const [bukuList, setBukuList] = useState([]);
   const [selectedMahasiswa, setSelectedMahasiswa] = useState("");
   const [selectedBuku, setSelectedBuku] = useState("");
@@ -16,31 +16,22 @@ const TransaksiPeminjaman = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const token = localStorage.getItem("authToken");
-  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+  const api = `${process.env.NEXT_PUBLIC_API_PEMINJAMAN_URL}`;
+  const apiBuku = `${process.env.NEXT_PUBLIC_API_BUKU_URL}`;
+  const apiMahasiswa = `${process.env.NEXT_PUBLIC_API_MAHASISWA_URL}`;
 
   // Fetch data mahasiswa
   useEffect(() => {
     const fetchMahasiswaData = async () => {
       try {
-        const response = await fetch(`${api}mahasiswa`, {
+        const response = await fetch(`${apiMahasiswa}getAll`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        if (response.status === 401) {
-          console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "/auth/signin";
-          return; // Stop further execution
-        }
-
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data mahasiswa");
-        }
-
         const data = await response.json();
-        setMahasiswaList(data);
+        setMahasiswaList(data.data);
         console.log("Token:", token);
       } catch (error: any) {
         console.error("Error fetching data:", error.message);
@@ -54,23 +45,19 @@ const TransaksiPeminjaman = () => {
   useEffect(() => {
     const fetchBukuData = async () => {
       try {
-        const response = await fetch(`${api}buku`, {
+        const response = await fetch(`${apiBuku}getAll`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (response.status === 401) {
-          console.error("Unauthorized: Redirecting to homepage.");
-          window.location.href = "/auth/signin";
-          return; // Stop further execution
-        }
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data buku");
+          // If the response is 401, redirect to the login page
+          window.location.href = "/";
+          return; // Exit the function early
         }
         const data = await response.json();
-        setBukuList(data);
+        setBukuList(data.data);
       } catch (error: any) {
         console.error("Error fetching data:", error.message);
       }
@@ -80,7 +67,7 @@ const TransaksiPeminjaman = () => {
   }, []);
 
   // Handle pemilihan mahasiswa
-  const handleSelectMahasiswa = (e) => {
+  const handleSelectMahasiswa = (e: any) => {
     const selectedIdMhs = e.target.value; // Ini adalah mahasiswa.id
     console.log(selectedIdMhs); // Pastikan ini mencetak id yang benar
     setSelectedMahasiswa(selectedIdMhs);
@@ -94,19 +81,6 @@ const TransaksiPeminjaman = () => {
   };
 
   const handleTambah = async () => {
-    // Validasi input
-    if (!selectedMahasiswa || !selectedBuku || !tglPinjam) {
-      const missingFields = [];
-      if (!selectedMahasiswa) missingFields.push("NIM Mahasiswa");
-      if (!selectedBuku) missingFields.push("ID Buku");
-      if (!tglPinjam) missingFields.push("Tanggal Pinjam");
-
-      alert(
-        `Semua field harus diisi! Field yang belum diisi:\n- ${missingFields.join("\n- ")}`,
-      );
-      return;
-    }
-
     const data = {
       nim: selectedMahasiswa,
       id_buku: selectedBuku,
@@ -114,9 +88,8 @@ const TransaksiPeminjaman = () => {
     };
 
     try {
-      // Menghindari masalah referensi dengan structuredClone
       const safeData = structuredClone(data);
-      const response = await fetch(`${api}peminjaman`, {
+      const response = await fetch(`${api}create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,17 +97,11 @@ const TransaksiPeminjaman = () => {
         },
         body: JSON.stringify(safeData),
       });
-
-      // Cek apakah respons sukses
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage =
-          errorData.error ||
-          errorData.message ||
-          "Gagal menambahkan peminjaman";
-        throw new Error(errorMessage);
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
       }
-
       // Proses setelah data berhasil dikirim
       const result = await response.json();
       alert("Peminjaman berhasil ditambahkan!");
@@ -147,7 +114,7 @@ const TransaksiPeminjaman = () => {
       setSelectedBuku("");
       setTglPinjam("");
       setTglKembali("");
-    } catch (error) {
+    } catch (error: any) {
       alert("Error: " + error.message);
     }
   };
@@ -176,7 +143,7 @@ const TransaksiPeminjaman = () => {
                   className="w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
                 >
                   <option value="">-- Pilih Mahasiswa --</option>
-                  {mahasiswaList.map((mahasiswa) => (
+                  {mahasiswaList.map((mahasiswa: any) => (
                     <option key={mahasiswa.id} value={`${mahasiswa.nim}`}>
                       {mahasiswa.nim} - {mahasiswa.nama}
                     </option>
@@ -194,7 +161,7 @@ const TransaksiPeminjaman = () => {
                   className="w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
                 >
                   <option value="">-- Pilih Buku --</option>
-                  {bukuList.map((buku) => (
+                  {bukuList.map((buku: any) => (
                     <option key={buku.id_buku} value={`${buku.id_buku}`}>
                       {buku.judul}
                     </option>

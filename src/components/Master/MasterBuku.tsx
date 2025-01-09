@@ -70,7 +70,11 @@ const MasterBuku = () => {
         },
         body: JSON.stringify(data), // Mengirimkan data dalam bentuk JSON
       });
-
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
+      }
       const result = await response.json();
       alert("Buku berhasil ditambahkan!");
       window.location.reload();
@@ -103,6 +107,11 @@ const MasterBuku = () => {
         },
         body: JSON.stringify(data), // Data yang akan di-update
       });
+      if (response.status === 401) {
+        // If the response is 401, redirect to the login page
+        window.location.href = "/";
+        return; // Exit the function early
+      }
       const result = await response.json();
       alert("Buku berhasil diubah!");
       window.location.assign("/master/master-buku");
